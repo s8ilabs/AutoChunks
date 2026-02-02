@@ -11,6 +11,7 @@ Thumbs.db
 .*
 !/.gitignore
 !/.github/
+!/.readthedocs.yaml
 
 
 # Python / Build
