@@ -2,12 +2,12 @@
 ### The Intelligent Data Optimization Layer for RAG Engineering
 
 [![Version](https://img.shields.io/badge/version-0.08--alpha-blue)](https://github.com/s8ilabs/AutoChunks)
-[![Documentation](https://img.shields.io/badge/docs-read--the--docs-teal)](https://autochunks.readthedocs.io/)
+[![Documentation](https://img.shields.io/badge/docs-read--the--docs-teal)](https://autochunks.readthedocs.io/en/latest/)
 [![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
 
-![AutoChunks Hero](docs/assets/hero_banner.png)
-
 AutoChunks is a specialized engine designed to eliminate the guesswork from Retrieval-Augmented Generation (RAG). By treating chunking as an optimization problem rather than a set of heuristics, it empirically discovers the most performant data structures for your specific documents and retrieval models.
+
+![AutoChunks Architecture](docs/assets/architecture.png)
 
 ---
 
@@ -86,6 +86,7 @@ chunks = plan.apply("./new_documents", optimizer)
 
 ## Documentation and Resources
 
+*   [🚀 Full Documentation Portal](https://autochunks.readthedocs.io/en/latest/)
 *   [Getting Started](docs/getting_started.md)
 *   [The Optimization Lifecycle](docs/core_concepts/eval_flow.md)
 *   [Metric Definitions and Scoring](docs/core_concepts/evaluation.md)
