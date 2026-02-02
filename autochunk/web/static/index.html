@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoChunks | Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        [data-tooltip] {
+            position: relative;
+            cursor: help;
+            text-decoration-line: underline;
+            text-decoration-style: dotted;
+            text-decoration-color: rgba(255, 255, 255, 0.3);
+        }
+
+        [data-tooltip]:before {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 120%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #f8fafc;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 400;
+            width: max-content;
+            max-width: 250px;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.2s ease;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            white-space: normal;
+            line-height: 1.4;
+        }
+
+        [data-tooltip]:after {
+            content: '';
+            position: absolute;
+            bottom: 110%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: #1e293b;
+            opacity: 0;
+            transition: all 0.2s ease;
+            z-index: 1000;
+        }
+
+        [data-tooltip]:hover:before,
+        [data-tooltip]:hover:after {
+            opacity: 1;
+            bottom: 130%;
+        }
+
+        [data-tooltip]:hover:after {
+            bottom: 120%;
+        }
+
+        /* Sweep Chips */
+        .chip-check {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .chip-check input {
+            display: none;
+        }
+
+        .chip-check span {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.75rem;
+            color: #94a3b8;
+            transition: all 0.2s;
+        }
+
+        .chip-check input:checked+span {
+            background: rgba(52, 211, 153, 0.1);
+            border-color: #34d399;
+            color: #34d399;
+        }
+
+        .view-transition {
+            overflow: hidden;
+            position: relative;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <!-- Landing View -->
+        <div id="view-landing" class="view">
+            <header>
+                <div class="logo-container">
+                    <div class="logo-icon">AC</div>
+                    <h1>AutoChunks</h1>
+                </div>
+                <div id="navToWorkspace" class="back-btn" style="margin-right: 0; cursor: pointer;">
+                    Open Workspace
+                    <i data-lucide="arrow-right"></i>
+                </div>
+            </header>
+
+            <div class="landing-hero">
+                <h1>Control Center</h1>
+            </div>
+
+            <div class="config-grid">
+                <!-- Embedding & Retrieval Card -->
+                <div class="config-card">
+                    <div class="section-title">
+                        <i data-lucide="cpu"></i> Embedding & Retrieval
+                        <span
+                            style="font-size: 0.65rem; font-weight: normal; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; margin-left: auto;">Shared
+                            Backbone</span>
+                    </div>
+                    <div class="input-group">
+                        <label>Documents Path</label>
+                        <input type="text" id="docsPath" value="./examples/pdf_docs" placeholder="/path/to/docs">
+                        <div id="fileInfoToggle" class="collapsible-trigger"
+                            style="margin-top: 0.75rem; border: none; font-size: 0.7rem;">
+                            <span><i data-lucide="library"
+                                    style="width: 12px; vertical-align: middle; margin-right: 4px;"></i> Scan
+                                Results</span>
+                            <i data-lucide="chevron-down" id="fileInfoChevron" style="width: 12px;"></i>
+                        </div>
+                        <div id="fileInfoContainer" class="hidden"
+                            style="max-height: 120px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 8px; margin-top: 0.5rem;">
+                            <div id="fileInfo" class="file-list" style="padding: 0.5rem; border: none;"></div>
+                        </div>
+                    </div>
+
+                    <div class="input-group"
+                        style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem;">
+                        <input type="checkbox" id="proxyEnabled" checked style="width: auto;">
+                        <label style="margin-bottom: 0;"
+                            data-tooltip="Corpus Sampling: Instead of indexing 100% of your documents, AutoChunks optimizes against a representative 10% sample subset. Essential for huge datasets to find the best strategy in seconds.">Enable
+                            Proxy Sampling</label>
+                    </div>
+
+                    <div class="input-group">
+                        <label
+                            data-tooltip="Synthesis Density: 'Light' generates a small sample of questions per doc. 'Full' generates an exhaustive set of adversarial questions to pressure-test chunk boundaries.">Optimization
+                            Mode</label>
+                        <select id="optimizeMode">
+                            <option value="light">Light (Fast Sample Sweep)</option>
+                            <option value="full">Full (Exhaustive Corpus Audit)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Intelligence Card -->
+                <div class="config-card">
+                    <div class="section-title">
+                        <i data-lucide="brain-circuit"></i>
+                        Intelligence
+                    </div>
+                    <div class="input-group">
+                        <label>Embedding Provider</label>
+                        <select id="embeddingProvider">
+                            <option value="hashing">Hashing (Mock)</option>
+                            <option value="local">Local (HuggingFace)</option>
+                            <option value="openai">OpenAI (Cloud)</option>
+                            <option value="ollama">Ollama (Local API)</option>
+                        </select>
+                    </div>
+                    <div id="modelConfigGroup" class="input-group" style="display: none;">
+                        <label>Model ID or Local Path</label>
+                        <input type="text" id="embeddingModel" value="BAAI/bge-small-en-v1.5"
+                            placeholder="e.g. BAAI/bge-small-en-v1.5">
+                        <label id="embeddingApiKeyLabel"
+                            style="font-size: 0.7rem; margin-top: 0.5rem; display: none;">API Key (Cloud
+                            Providers)</label>
+                        <input type="password" id="embeddingApiKey" placeholder="sk-..."
+                            style="font-size: 0.8rem; padding: 0.4rem; display: none;">
+                    </div>
+                    <div class="input-group">
+                        <label
+                            data-tooltip="Optimization Goal determines the scoring logic and primary retrieval metric. Select the one that matches your RAG use-case.">Optimization
+                            Goal</label>
+                        <select id="optimizationGoal">
+                            <option value="balanced_ndcg" selected>Balanced Ranking (Standard RAG)</option>
+                            <option value="balanced_recall">Comprehensive Retrieval (Legal/Medical)</option>
+                            <option value="latency_mrr">Speed & Precision (Chatbots)</option>
+                            <option value="quality_max">Absolute Quality (High Precision)</option>
+                            <option value="cost_efficiency">Cost Efficiency (Massive Data)</option>
+                        </select>
+                    </div>
+                    <div style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.1);">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="telemetryEnabled" style="width: auto;">
+                            <label style="margin-bottom: 0; font-size: 0.75rem; color: var(--accent-teal);">Enable
+                                Tracing (Arize Phoenix)</label>
+                        </div>
+                    </div>
+
+                    <!-- RAGAS Configuration -->
+                    <div style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.1);">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+                            <input type="checkbox" id="ragasEnabled" style="width: auto;">
+                            <label style="margin-bottom: 0; font-size: 0.8rem; color: #f59e0b; font-weight: 600;"
+                                data-tooltip="RAGAS uses an LLM judge to evaluate Context Precision and Context Recall. Works with OpenAI, Ollama (local), or HuggingFace.">
+                                <i data-lucide="sparkles"
+                                    style="width: 14px; vertical-align: middle; margin-right: 4px;"></i>
+                                Enable RAGAS Analysis
+                            </label>
+                        </div>
+
+                        <!-- Dynamic Link Status -->
+                        <div id="ragasRetrievalStatus"
+                            style="font-size: 0.65rem; color: var(--text-secondary); margin-bottom: 0.75rem; padding-left: 1.8rem; border-left: 2px solid rgba(255,255,255,0.1);">
+                            Retrieval via: <strong>Hashing (Mock)</strong>
+                        </div>
+
+                        <div id="ragasConfigGroup" class="hidden" style="padding-left: 1.5rem; opacity: 0.9;">
+                            <div class="input-group" style="margin-bottom: 0.5rem;">
+                                <label style="font-size: 0.7rem;">LLM Provider</label>
+                                <select id="ragasLlmProvider" style="font-size: 0.8rem; padding: 0.4rem;">
+                                    <option value="openai">OpenAI API (fast, paid)</option>
+                                    <option value="ollama">Ollama (free, runs locally)</option>
+                                    <option value="huggingface">HuggingFace Transformers (advanced, needs GPU)</option>
+                                </select>
+                            </div>
+                            <div class="input-group" style="margin-bottom: 0;">
+                                <label style="font-size: 0.7rem;">Model Name (optional)</label>
+                                <input type="text" id="ragasLlmModel" placeholder="e.g. gpt-4o-mini, llama3.2"
+                                    style="font-size: 0.8rem; padding: 0.4rem;">
+                                <label id="ragasApiKeyLabel" style="font-size: 0.7rem; margin-top: 0.5rem;">LLM API
+                                    Key</label>
+                                <input type="password" id="ragasApiKey" placeholder="sk-..."
+                                    style="font-size: 0.8rem; padding: 0.4rem;">
+                            </div>
+                            <div
+                                style="font-size: 0.65rem; color: var(--text-secondary); margin-top: 0.5rem; line-height: 1.4;">
+                                <strong>OpenAI:</strong> Set OPENAI_API_KEY env var<br>
+                                <strong>Ollama:</strong> Run <code>ollama serve</code> locally
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Strategy Card -->
+                <div class="config-card">
+                    <div class="section-title">
+                        <i data-lucide="layers"></i>
+                        Strategy & Search
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="chunk-group">
+                            <div
+                                style="margin-bottom: 0.5rem; font-size: 0.65rem; font-weight: 700; color: var(--accent-teal); text-transform: uppercase; letter-spacing: 0.05em;">
+                                Native Optimizers</div>
+                            <div class="chunker-select-list"
+                                style="max-height: 160px; overflow-y: auto; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                                <label class="chunker-opt"><input type="checkbox" class="chunker-check"
+                                        value="fixed_length" checked>Fixed Length</label>
+                                <label class="chunker-opt"><input type="checkbox" class="chunker-check"
+                                        value="recursive_character" checked>Recursive Char</label>
+                                <label class="chunker-opt"><input type="checkbox" class="chunker-check"
+                                        value="semantic_local" checked>Semantic Local</label>
+                                <label class="chunker-opt"><input type="checkbox" class="chunker-check"
+                                        value="layout_aware" checked>Layout Aware</label>
+                                <label class="chunker-opt"><input type="checkbox" class="chunker-check"
+                                        value="hybrid_semantic_stat" checked>Hybrid</label>
+                                <label class="chunker-opt"><input type="checkbox" class="chunker-check"
+                                        value="parent_child" checked>Parent-Child</label>
+                                <label class="chunker-opt"><input type="checkbox" class="chunker-check"
+                                        value="sentence_aware" checked>Sentence Aware</label>
+                                <label class="chunker-opt"><input type="checkbox" class="chunker-check"
+                                        value="html_section">HTML Section</label>
+                            </div>
+                        </div>
+                        <div class="chunk-group">
+                            <div
+                                style="margin-bottom: 0.5rem; font-size: 0.65rem; font-weight: 700; color: #60a5fa; text-transform: uppercase; letter-spacing: 0.05em;">
+                                LangChain Bridges</div>
+                            <div class="chunker-select-list"
+                                style="max-height: 160px; overflow-y: auto; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                                <label class="chunker-opt"><input type="checkbox" class="chunker-check"
+                                        value="langchain_recursive">LC Recursive</label>
+                                <label class="chunker-opt"><input type="checkbox" class="chunker-check"
+                                        value="langchain_character">LC Character</label>
+                                <label class="chunker-opt"><input type="checkbox" class="chunker-check"
+                                        value="langchain_markdown">LC Markdown</label>
+                                <label class="chunker-opt"><input type="checkbox" class="chunker-check"
+                                        value="langchain_token">LC Token</label>
+                                <label class="chunker-opt"><input type="checkbox" class="chunker-check"
+                                        value="langchain_python">LC Python</label>
+                                <label class="chunker-opt"><input type="checkbox" class="chunker-check"
+                                        value="langchain_html">LC HTML</label>
+                                <label class="chunker-opt"><input type="checkbox" class="chunker-check"
+                                        value="langchain_json">LC JSON</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hyperparameter Sweep -->
+                    <div style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.1);">
+                        <label
+                            style="font-size: 0.75rem; margin-bottom: 0.5rem; display: block; color: var(--text-secondary);">Chunk
+                            Sizes (Tokens)</label>
+                        <div style="display: flex; gap: 0.4rem; margin-bottom: 0.75rem;">
+                            <label class="chip-check"><input type="checkbox" name="sweep_size"
+                                    value="256"><span>256</span></label>
+                            <label class="chip-check"><input type="checkbox" name="sweep_size" value="512"
+                                    checked><span>512</span></label>
+                            <label class="chip-check"><input type="checkbox" name="sweep_size"
+                                    value="1024"><span>1024</span></label>
+                        </div>
+                        <label
+                            style="font-size: 0.75rem; margin-bottom: 0.5rem; display: block; color: var(--text-secondary);">Overlap
+                            Ratio</label>
+                        <div style="display: flex; gap: 0.4rem;">
+                            <label class="chip-check"><input type="checkbox" name="sweep_overlap" value="0.1"
+                                    checked><span>10%</span></label>
+                            <label class="chip-check"><input type="checkbox" name="sweep_overlap"
+                                    value="0.15"><span>15%</span></label>
+                            <label class="chip-check"><input type="checkbox" name="sweep_overlap"
+                                    value="0.2"><span>20%</span></label>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                        <!-- Tracing moved to Intelligence -->
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center;">
+                <button id="runBtn" class="btn full-width-btn">Start Optimization Pipeline</button>
+            </div>
+
+            <!-- Network Audit Panel (Landing) -->
+            <div id="networkAudit" class="network-audit-panel hidden" style="max-width: 600px; margin: 2rem auto;">
+                <h4><i data-lucide="shield-alert" style="width: 14px;"></i> Privacy & Network Audit</h4>
+                <p id="auditStatus">Reviewing your configuration...</p>
+                <div id="auditDetails" class="hidden">
+                    <ul id="networkLinks" class="network-link-list"></ul>
+                </div>
+            </div>
+
+            <div id="localModelsGroup" class="input-group"
+                style="max-width: 400px; margin: 2rem auto; text-align: center;">
+                <label>Local Models Cache Path (Optional)</label>
+                <input type="text" id="localModelsPath" placeholder="e.g. C:/cache/models">
+            </div>
+        </div>
+
+        <!-- Workspace View -->
+        <div id="view-workspace" class="view hidden">
+            <header>
+                <div class="logo-container">
+                    <div id="backToConfig" class="back-btn">
+                        <i data-lucide="arrow-left"></i>
+                        Back to Config
+                    </div>
+                </div>
+            </header>
+
+            <main class="grid" id="mainGrid" style="grid-template-columns: 1fr;">
+                <section class="card" style="display: flex; flex-direction: column;">
+                    <div id="workspaceContainer">
+                        <!-- Progress State -->
+                        <div id="progressState" class="progress-container">
+                            <div class="stepper">
+                                <div class="step" id="step1">
+                                    <div class="step-circle">1</div>
+                                    <span class="step-label">Setup</span>
+                                </div>
+                                <div class="step" id="step2">
+                                    <div class="step-circle">2</div>
+                                    <span class="step-label">QA Gen</span>
+                                </div>
+                                <div class="step" id="step3">
+                                    <div class="step-circle">3</div>
+                                    <span class="step-label">Parallel Eval</span>
+                                </div>
+                            </div>
+                            <div class="spinner"></div>
+                            <h2 class="pulse" id="thinkingMsg">AutoChunks is Thinking...</h2>
+                        </div>
+
+                        <!-- Result State -->
+                        <div id="resultState" class="report-container" style="display: none;">
+                            <div class="section-title">
+                                <i data-lucide="award"></i>
+                                Optimized Selection
+                            </div>
+                            <div id="bestPlanReveal" class="best-plan-card">
+                                <div class="winner-tag">Winning Strategy</div>
+                                <h2 id="winnerName" style="margin-bottom: 0.5rem; font-size: 1.5rem;">-</h2>
+                                <code id="winnerParams" style="opacity: 0.7; font-size: 0.875rem;">-</code>
+                                <div id="metricBoard" class="metric-grid"></div>
+                            </div>
+                            <div class="section-title"
+                                style="margin-top: 2rem; display: flex; justify-content: space-between; align-items: center;">
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <i data-lucide="list-tree"></i>
+                                    Candidate Performance
+                                </div>
+                                <div class="sort-controls">
+                                    <span class="sort-label">Sort by:</span>
+                                    <button class="sort-btn active" data-sort="objective_score">Score</button>
+                                    <button class="sort-btn" data-sort="ndcg@k">nDCG</button>
+                                    <button class="sort-btn" data-sort="quality">Quality</button>
+                                    <button class="sort-btn" data-sort="mrr@k">MRR</button>
+                                    <button class="sort-btn" data-sort="count">Chunks</button>
+                                </div>
+                            </div>
+                            <div id="candidateList" class="candidate-list"></div>
+
+                            <div class="section-title" style="margin-top: 2rem;">
+                                <i data-lucide="code-2"></i>
+                                Deploy as Code (Adapters)
+                            </div>
+                            <div class="deploy-tabs">
+                                <button class="tab-btn active" onclick="switchDeployTab('langchain')">LangChain</button>
+                                <button class="tab-btn" onclick="switchDeployTab('llamaindex')">LlamaIndex</button>
+                                <button class="tab-btn" onclick="switchDeployTab('haystack')">Haystack</button>
+                            </div>
+                            <div class="code-container">
+                                <pre id="deployCode"><code># Select a strategy to see code</code></pre>
+                                <button class="copy-btn" onclick="copyDeployCode()">
+                                    <i data-lucide="copy" style="width: 14px;"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Shared Log Section -->
+                    <div id="logSection" class="log-section">
+                        <div class="collapsible-trigger" id="logToggle">
+                            <span><i data-lucide="terminal"
+                                    style="width: 14px; vertical-align: middle; margin-right: 4px;"></i> Log
+                                Terminal</span>
+                            <i data-lucide="chevron-down" id="logChevron" style="width: 14px;"></i>
+                        </div>
+                        <div id="logTerminal" class="log-terminal">
+                            <div class="log-entry">
+                                <span class="log-time">[System]</span>
+                                <span class="log-msg">Welcome to AutoChunks Engine.</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <!-- Fidelity Inspector Modal -->
+        <div id="fidelityModal" class="modal-overlay hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <h3>Fidelity Inspector</h3>
+                        <div class="sync-badge">
+                            <span class="pulse-dot"></span>
+                            Sync Scroll Active
+                        </div>
+                    </div>
+                    <button class="close-btn" onclick="closeFidelity()">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="fidelity-grid">
+                        <div class="fidelity-pane">
+                            <div class="pane-header" id="pane1Title">Candidate A</div>
+                            <div class="pane-content" id="pane1Content"></div>
+                        </div>
+                        <div class="fidelity-pane">
+                            <div class="pane-header" id="pane2Title">Candidate B</div>
+                            <div class="pane-content" id="pane2Content"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <p>Visualizing the first 3 chunks to compare splitting logic and context preservation.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>

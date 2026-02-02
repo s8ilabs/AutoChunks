@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "autochunks"
+version = "0.0.8"
+description = "Autonomous Retrieval Optimization for RAG"
+readme = "README.md"
+authors = [{name = "Sumit Joshi"}]
+license = {text = "Apache-2.0"}
+requires-python = ">=3.10"
+keywords = ["rag", "chunking", "retrieval", "nlp"]
+
+dependencies = [
+    "numpy>=1.24",
+    "pyyaml>=6.0",
+    "loguru",
+    "arize-phoenix>=4.3.0",
+    "opentelemetry-api",
+    "opentelemetry-sdk",
+    "opentelemetry-exporter-otlp",
+    "nltk",
+    "pymupdf4llm",
+    "sentence-transformers",
+    "torch",
+    "fastapi",
+    "uvicorn",
+    "python-multipart"
+]
+
+[project.urls]
+Homepage = "https://example.com/autochunk"
+
+[project.scripts]
+autochunks = "autochunk.cli:main"
