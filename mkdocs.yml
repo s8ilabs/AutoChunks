@@ -1,4 +1,5 @@
 site_name: AutoChunks
+site_url: https://autochunks.readthedocs.io/
 site_description: Autonomous Retrieval Optimization - Optimize your chunking strategy with data-driven precision.
 site_author: AutoChunks Team
 repo_url: https://github.com/s8ilabs/AutoChunks
