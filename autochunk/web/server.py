@@ -197,8 +197,11 @@ def get_job_status(job_id: str):
     return jobs_data[job_id]
 
 # Serve static files
-os.makedirs("autochunk/web/static", exist_ok=True)
-app.mount("/", StaticFiles(directory="autochunk/web/static", html=True), name="static")
+# Serve static files with absolute path resolution
+from pathlib import Path
+static_dir = Path(__file__).resolve().parent / "static"
+os.makedirs(static_dir, exist_ok=True)
+app.mount("/", StaticFiles(directory=str(static_dir), html=True), name="static")
 
 if __name__ == "__main__":
     import uvicorn
