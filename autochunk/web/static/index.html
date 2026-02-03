@@ -132,8 +132,14 @@
                             Backbone</span>
                     </div>
                     <div class="input-group">
-                        <label>Documents Path</label>
-                        <input type="text" id="docsPath" value="./examples/pdf_docs" placeholder="/path/to/docs">
+                        <label data-tooltip="The filesystem path containing your source documents (PDF, MD, TXT, etc.)">Documents Path</label>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="text" id="docsPath" value="./examples/pdf_docs" placeholder="/path/to/docs" style="flex: 1;">
+                            <button id="browseDocsBtn" class="btn" style="width: auto; padding: 0.5rem 1rem; flex-shrink: 0; font-size: 0.8rem; height: 42px;">
+                                <i data-lucide="folder-open" style="width: 16px; margin-right: 4px; vertical-align: middle;"></i>
+                                Browse
+                            </button>
+                        </div>
                         <div id="fileInfoToggle" class="collapsible-trigger"
                             style="margin-top: 0.75rem; border: none; font-size: 0.7rem;">
                             <span><i data-lucide="library"

@@ -138,19 +138,44 @@ def run_optimization_sync(job_id: str, req: OptimizeRequest):
 
 @app.get("/api/docs/list")
 def list_documents(path: str):
-    if not os.path.exists(path):
+    if not path or not os.path.exists(path):
         return {"files": [], "error": "Path not found"}
     
     from autochunk.utils.io import SUPPORTED_EXTS
     files = []
-    for dirpath, _, filenames in os.walk(path):
-        for fn in filenames:
-            if os.path.splitext(fn)[1].lower() in SUPPORTED_EXTS:
-                # Use relative path if possible for cleaner UI
-                rel_path = os.path.relpath(os.path.join(dirpath, fn), path)
-                files.append(rel_path)
+    try:
+        for dirpath, _, filenames in os.walk(path):
+            for fn in filenames:
+                if os.path.splitext(fn)[1].lower() in SUPPORTED_EXTS:
+                    # Use relative path if possible for cleaner UI
+                    rel_path = os.path.relpath(os.path.join(dirpath, fn), path)
+                    files.append(rel_path)
+    except Exception as e:
+        return {"files": [], "error": str(e)}
     
     return {"files": sorted(files)}
+
+@app.get("/api/browse")
+def browse_directory():
+    """Opens a native directory picker on the server (desktop)."""
+    try:
+        import tkinter as tk
+        from tkinter import filedialog
+        
+        root = tk.Tk()
+        root.withdraw()
+        # Ensure the dialog appears on top
+        root.attributes('-topmost', True)
+        
+        directory = filedialog.askdirectory()
+        root.destroy()
+        
+        if directory:
+            return {"path": os.path.abspath(directory)}
+        return {"path": None}
+    except Exception as e:
+        logger.error(f"Failed to open directory picker: {e}")
+        return {"path": None, "error": str(e)}
 
 @app.post("/api/optimize")
 def start_optimization(req: OptimizeRequest, background_tasks: BackgroundTasks):

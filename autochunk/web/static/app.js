@@ -23,9 +23,9 @@ const elements = {
     fidelityModal: document.getElementById('fidelityModal'),
     fidelityModal: document.getElementById('fidelityModal'),
     pane1Title: document.getElementById('pane1Title'),
-    pane1Content: document.getElementById('pane1Content'),
     pane2Title: document.getElementById('pane2Title'),
-    pane2Content: document.getElementById('pane2Content')
+    pane2Content: document.getElementById('pane2Content'),
+    browseDocsBtn: document.getElementById('browseDocsBtn')
 };
 
 // --- UI Logic ---
@@ -118,8 +118,22 @@ document.getElementById('ragasLlmProvider').addEventListener('change', (e) => {
 async function fetchDocs() {
     try {
         const path = elements.docsPath.value;
+        if (!path) {
+            elements.fileInfo.innerHTML = '<div style="padding: 0.5rem; color: var(--text-secondary); opacity: 0.5;">Enter a path or browse...</div>';
+            return;
+        }
         const res = await fetch(`/api/docs/list?path=${encodeURIComponent(path)}`);
         const data = await res.json();
+
+        if (data.error) {
+            elements.fileInfo.innerHTML = `<div style="padding: 0.5rem; color: var(--accent-rose); font-size: 0.75rem;">${data.error}</div>`;
+            return;
+        }
+
+        if (data.files.length === 0) {
+            elements.fileInfo.innerHTML = '<div style="padding: 0.5rem; color: var(--text-secondary); opacity: 0.5;">No supported documents found.</div>';
+            return;
+        }
 
         elements.fileInfo.innerHTML = data.files.map(f => `
             <div class="file-item">
@@ -130,6 +144,20 @@ async function fetchDocs() {
         lucide.createIcons();
     } catch (e) {
         console.error("Failed to fetch docs", e);
+        elements.fileInfo.innerHTML = '<div style="padding: 0.5rem; color: var(--accent-rose);">Connection error.</div>';
+    }
+}
+
+async function browseDocs() {
+    try {
+        const res = await fetch('/api/browse');
+        const data = await res.json();
+        if (data.path) {
+            elements.docsPath.value = data.path;
+            fetchDocs();
+        }
+    } catch (e) {
+        console.error("Failed to browse docs", e);
     }
 }
 
@@ -589,7 +617,8 @@ function updateNetworkAudit() {
 // --- Event Listeners ---
 
 elements.runBtn.addEventListener('click', startOptimization);
-elements.docsPath.addEventListener('change', fetchDocs);
+elements.docsPath.addEventListener('input', fetchDocs);
+elements.browseDocsBtn.addEventListener('click', browseDocs);
 document.getElementById('localModelsPath').addEventListener('input', updateNetworkAudit);
 
 // Sync Embedding Provider to RAGAS Info
